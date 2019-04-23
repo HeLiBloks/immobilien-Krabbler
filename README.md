@@ -2,7 +2,8 @@
 scraper for Immobilienscout24.de
 
 
-```usage: immoKrabbler.py [-h] [--database [DATABASE]] [--debug]
+```
+usage: immoKrabbler.py [-h] [--database [DATABASE]] [--debug]
                        [--url URL [URL ...]] [--update-db] [--json]
                        [--photos [PHOTO_DIR]] [--csv] [--outfile [OUTFILE]]
 
