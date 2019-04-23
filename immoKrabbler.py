@@ -54,17 +54,17 @@ class database(object):
                                 Column('unixtimestamp', Integer(),
                                        default=datetime.datetime.now(datetime.timezone.utc).timestamp()),
                                 Column('cwid', String()),
-                                Column('shortlisted', Boolean()),
-                                Column('privateoffer', Boolean()),
+                                Column('shortlisted', String()),
+                                Column('privateoffer', String()),
                                 Column('title', String(255)),
                                 Column('address', String(255)),
                                 Column('district', String(255)),
                                 Column('city', String(255)),
                                 Column('zip', Integer()),
                                 Column('distanceinkm', Integer()),
-                                Column('hasnewflag', Boolean()),
-                                Column('hasfloorplan', Boolean()),
-                                Column('hasvaluation', Boolean()),
+                                Column('hasnewflag', String()),
+                                Column('hasfloorplan', String()),
+                                Column('hasvaluation', String()),
                                 Column('realtorlogoforresultlisturl', String()),
                                 Column(u'realtorcompanyname', String()),
                                 Column('contactname', String()),
@@ -272,6 +272,9 @@ class Immo_scraper(object):
         immo_str = json.dumps(listofjsn)
         #  immo_str = demjson.decode(listofjsn)
         immo_str = re.sub(keyname, '', immo_str)
+
+        #  keyname = re.compile(r'(["\'])[fF]alse\1')
+        #  immo_str = re.sub(keyname, False, immo_str)
         listofjsn = json.loads(immo_str)
         subpattern = re.compile(r'[^\d,]')
 
