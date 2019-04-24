@@ -1,6 +1,11 @@
 # immobilien-Krabbler
 scraper for Immobilienscout24.de
 
+install
+```
+    pip3 install selenium==3.4.1 SQLAlchemy==1.2.11 SQLAlchemy-Utils==0.32.14
+    npm install -g phantomjs@2.1.1
+```
 
 ```
 usage: immoKrabbler.py [-h] [--database [DATABASE]] [--debug]

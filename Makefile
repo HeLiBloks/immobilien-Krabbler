@@ -1,12 +1,14 @@
 SHELL:=/bin/bash
-
-SITEPACKAGES:=$(shell python -c 'import site; site.getsitepackages()')
+EXECUTABLES_doxygen = doxygen doxypy
 
 ListSitePackages:
+	SITEPACKAGES:=$(shell python -c 'import site; site.getsitepackages()')
 	$(shell echo $$SITEPACKAGES)
-	# python -c 'import site; site.getsitepackages()'
 
-uml:
+pyreverse_uml:
+	ifeq (, $(shell which pyreverse))
+		$(error "No pyreverse in $(PATH), consider pip installing pyreverse")
+	endif
 	pyreverse -o pdf -p '/tmp/uml_pyreverse.pdf' && zathura /tmp/uml_pyreverse.pdf
 
 tags2uml:
@@ -16,7 +18,7 @@ tags2uml:
 	dot -Tpdf |zathura -
 
 doxygen:
-	[[ ! -f ./doc ]] && mkdir doc
+	test -d ./doc || mkdir doc
 	doxygen -g Doxygen
 	sed -i -re '/^EXTRACT_(ALL)|(PRIVATE)|(STATIC)/ s/NO/YES/g; /^CALL_GRAPH/ s/NO/YES/; /^HAVE_DOT/ s/NO/YES/g; ' \
 	-e '/^FILE_PATTERNS/     s/=(.*)/& *.txt *.py / ' \
@@ -28,12 +30,13 @@ doxygen:
 	-e '/^OPTIMIZE_OUTPUT_FOR_JAVA/ s/=.*/= YES/' \
 	-e '/^GENERATE_TAGFILE/ s/=.*/= YES/' Doxygen
 	# run doxygen with created file
-	doxygen Doxygen
+	test $$? -eq 0 && doxygen Doxygen
 
 initVirtualEnvInPWD:
-	{ find .  -iname '*.py' -exec  grep -Po '^\s*(from\s\K\w+)?(?=\s*import\s)' {} \; | sort -u ;
-	virtualenv -p /usr/bin/python ./env
-	echo "./env" >> .gitignore
+	virtualenv -p /usr/bin/python ./env && \
+	source env/bin/activate ; pip3 install selenium==3.4.1 SQLAlchemy==1.2.11 SQLAlchemy-Utils==0.32.14
+	$(shell egrep '^env' .gitignore || echo "env" >> .gitignore )
+	# find .  -iname '*.py' -exec  grep -Po '^\s*(from\s\K\w+)?(?=\s*import\s)' {} \; | sort -u ;
 
 un_initVirtualEnvInPWD:
 	
@@ -52,4 +55,5 @@ pyCscope:
 clean:
 	rm -rf ghostdriver.log tags ./doc Doxygen
 
-
+create_report_view:
+	test -f immobilien.db && sqlite3 ./immobilien.db "CREATE VIEW _immos AS SELECT datetime(unixtimestamp,'unixepoch','localtime') AS Datum, printf('%.2f', immobilien.kaufpreis) AS Kaufpreis, printf('%.2f', immobilien.kaltmiete) AS Kaltmiete, printf('%.2f',kaufpreis/wohnfläche) AS 'K_Eur/M²', printf('%.2f',kaltmiete/wohnfläche) AS 'M_Eur/M²', printf('%.2f',wohnfläche) AS Wohnfläche, printf('%.2f',grundstück) AS 'Grundstück', address, district FROM immobilien ORDER BY Datum DESC"
